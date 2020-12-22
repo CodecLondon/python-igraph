@@ -11397,14 +11397,17 @@ PyObject *igraphmodule_Graph_community_label_propagation(
 PyObject *igraphmodule_Graph_community_multilevel(igraphmodule_GraphObject *self,
   PyObject *args, PyObject *kwds)
 {
-  static char *kwlist[] = { "weights", "return_levels", NULL };
+  static char *kwlist[] = { "weights", "return_levels", "probability_p", "probability_q", NULL };
   PyObject *return_levels = Py_False;
   PyObject *mss, *qs, *res, *weights = Py_None;
+  igraph_real_t probability_p = 0;
+  igraph_real_t probability_q = 0;
   igraph_matrix_t memberships;
   igraph_vector_t membership, modularity;
   igraph_vector_t *ws;
 
-  if (!PyArg_ParseTupleAndKeywords(args, kwds, "|OO", kwlist, &weights, &return_levels)) {
+  if (!PyArg_ParseTupleAndKeywords(args, kwds, "|OO", kwlist,
+		  &weights, &return_levels, &probability_p, &probability_q)) {
     return NULL;
   }
 
@@ -11416,7 +11419,7 @@ PyObject *igraphmodule_Graph_community_multilevel(igraphmodule_GraphObject *self
   igraph_vector_init(&modularity, 0);
 
   if (igraph_community_multilevel(&self->g, ws, &membership, &memberships,
-        &modularity)) {
+        &modularity, probability_p, probability_q)) {
     if (ws) { igraph_vector_destroy(ws); free(ws); }
     igraph_vector_destroy(&membership);
     igraph_vector_destroy(&modularity);
@@ -15623,7 +15626,7 @@ struct PyMethodDef igraphmodule_Graph_methods[] = {
   {"community_multilevel",
    (PyCFunction) igraphmodule_Graph_community_multilevel,
    METH_VARARGS | METH_KEYWORDS,
-   "community_multilevel(weights=None, return_levels=True)\n\n"
+   "community_multilevel(weights=None, return_levels=True, probability_p=0, probability_q=0)\n\n"
    "Finds the community structure of the graph according to the multilevel\n"
    "algorithm of Blondel et al. This is a bottom-up algorithm: initially\n"
    "every vertex belongs to a separate community, and vertices are moved\n"
@@ -15641,6 +15644,11 @@ struct PyMethodDef igraphmodule_Graph_methods[] = {
    "@param return_levels: if C{True}, returns the multilevel result. If\n"
    "  C{False}, only the best level (corresponding to the best modularity)\n"
    "  is returned.\n"
+   "@param probability_p: When a node can join more than one community \n"
+   "  with the same change in modularity, ties are broken randomly with\n"
+   "  this probability.\n"
+   "@param probability_q: The probability to allow perturbation even if\n"
+   "  there is no positive gain.\n"
    "@return: either a single list describing the community membership of each\n"
    "  vertex (if C{return_levels} is C{False}), or a list of community membership\n"
    "  vectors, one corresponding to each level and a list of corresponding\n"

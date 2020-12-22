@@ -1242,7 +1242,7 @@ class Graph(GraphBase):
                 modularity_params=dict(weights=weights))
 
 
-    def community_multilevel(self, weights=None, return_levels=False):
+    def community_multilevel(self, weights=None, return_levels=False, probability_p=0, probability_q=0):
         """Community structure based on the multilevel algorithm of
         Blondel et al.
 
@@ -1263,6 +1263,11 @@ class Graph(GraphBase):
         @param return_levels: if C{True}, the communities at each level are
           returned in a list. If C{False}, only the community structure with
           the best modularity is returned.
+        @param probability_p: When a node can join more than one community 
+          with the same change in modularity, ties are broken randomly with 
+          this probability.
+        @param probability_q: The probability to allow perturbation even if
+          there is no positive gain.
         @return: a list of L{VertexClustering} objects, one corresponding to
           each level (if C{return_levels} is C{True}), or a L{VertexClustering}
           corresponding to the best modularity.
@@ -1276,13 +1281,13 @@ class Graph(GraphBase):
             raise ValueError("input graph must be undirected")
 
         if return_levels:
-            levels, qs = GraphBase.community_multilevel(self, weights, True)
+            levels, qs = GraphBase.community_multilevel(self, weights, True, probability_p, probability_q)
             result = []
             for level, q in zip(levels, qs):
                 result.append(VertexClustering(self, level, q,
                     modularity_params=dict(weights=weights)))
         else:
-            membership = GraphBase.community_multilevel(self, weights, False)
+            membership = GraphBase.community_multilevel(self, weights, False, probability_p, probability_q)
             result = VertexClustering(self, membership,
                     modularity_params=dict(weights=weights))
         return result
