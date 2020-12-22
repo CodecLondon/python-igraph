@@ -11406,7 +11406,7 @@ PyObject *igraphmodule_Graph_community_multilevel(igraphmodule_GraphObject *self
   igraph_vector_t membership, modularity;
   igraph_vector_t *ws;
 
-  if (!PyArg_ParseTupleAndKeywords(args, kwds, "|OO", kwlist,
+  if (!PyArg_ParseTupleAndKeywords(args, kwds, "|OOdd", kwlist,
 		  &weights, &return_levels, &probability_p, &probability_q)) {
     return NULL;
   }
